@@ -10,7 +10,18 @@ import java.io.IOException;
  */
 public abstract class Scenario {
 
+    private final String username;
+    private final String password;
     private String sessionID;
+
+    public Scenario() {
+        this("CHUALK", "123");
+    }
+
+    public Scenario(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     public final void pre() throws IOException {
 
@@ -20,9 +31,10 @@ public abstract class Scenario {
 
         sessionID = Jsoup
                 .connect("http://192.168.200.195:8181/iDV/svltlogin")
+                .userAgent("SSTR Load Runner/1.0 (JSoup 1.7.2)")
                 .data("form_name", "loginform",
-                        "txtUserID", "CHUALK",
-                        "txtUserPass", "123",
+                        "txtUserID", username,
+                        "txtUserPass", password,
                         "userTimeZone", "8")
                 .method(Connection.Method.POST)
                 .execute().cookie("JSESSIONID");
