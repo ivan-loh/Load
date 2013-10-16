@@ -1,40 +1,37 @@
 package com.sstr.load;
 
 import com.sstr.load.manager.Manager;
-import com.sstr.load.scenario.ListingScenario;
-import com.sstr.load.scenario.LogDetailScenario;
 import com.sstr.load.scenario.Scenario;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 import spark.Spark;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InvalidClassException;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Load {
 
-    public static void WebDisplay() {
+    public static void WebDisplay() throws IOException {
 
         /**
          * Create Essential Items
          */
-        ConcurrentHashMap<String, Manager> managers = new ConcurrentHashMap<String, Manager>(2, 0.75f, 4);
-
+        final ConcurrentHashMap<String, Manager> managers = new ConcurrentHashMap<String, Manager>(4, 0.75f, 4);
 
         /**
          * Spark
          */
         Spark.setPort(4444);
+        Spark.externalStaticFileLocation(new File("static").getCanonicalPath());
 
         Spark.get(
                 /**
                  * Scenario Listing
-                 * ================
-                 * Returns a list of scenario supported
                  */
                 new Route("scenarios") {
-
                     @Override
                     public Object handle(Request request, Response response) {
 
@@ -60,9 +57,99 @@ public class Load {
                     }
                 });
 
+        Spark.get(
+                /**
+                 * Starts Manager
+                 */
+                new Route("start/:scenario") {
+                    @Override
+                    public Object handle(Request request, Response response) {
+
+
+                        try {
+                            String scenarioName = request.params(":scenario");
+                            Class<?> scenario = Class.forName(scenarioName);
+                            Manager scenarioManager = new Manager(scenario);
+                            managers.putIfAbsent(scenarioName, scenarioManager);
+                        } catch (Exception e) {
+                            halt(500);
+                            e.printStackTrace();
+                        }
+
+                        return "Ok";
+                    }
+                });
+
+        Spark.get(
+                /**
+                 * Increase manager concurrency
+                 */
+                new Route("increase/:scenario") {
+                    @Override
+                    public Object handle(Request request, Response response) {
+
+                        int jobs = 0;
+                        try {
+                            String scenarioName = request.params(":scenario");
+                            Manager scenarioManager = managers.get(scenarioName);
+                            jobs = scenarioManager.increaseJob();
+                        } catch (Exception e) {
+                            halt(500);
+                            e.printStackTrace();
+                        }
+
+                        return jobs;
+                    }
+                });
+
+        Spark.get(
+                /**
+                 * Decrease manager concurrency
+                 */
+                new Route("decrease/:scenario") {
+                    @Override
+                    public Object handle(Request request, Response response) {
+
+                        int jobs = 0;
+                        try {
+                            String scenarioName = request.params(":scenario");
+                            Manager scenarioManager = managers.get(scenarioName);
+                            jobs = scenarioManager.decreaseJob();
+                        } catch (Exception e) {
+                            halt(500);
+                            e.printStackTrace();
+                        }
+
+                        return jobs;
+                    }
+                });
+
+        Spark.get(
+                /**
+                 * Get manager TPS
+                 */
+                new Route("tps/:scenario") {
+                    @Override
+                    public Object handle(Request request, Response response) {
+
+                        double tps = 0;
+                        try {
+                            String scenarioName = request.params(":scenario");
+                            Manager scenarioManager = managers.get(scenarioName);
+                            return scenarioManager.getAggregateTPS();
+                        } catch (Exception e) {
+                            halt(500);
+                            e.printStackTrace();
+                        }
+
+                        return tps;
+                    }
+                });
+
+
     }
 
-    public static void singleTest(Class scenario, int concurrencyLevel, long duration) throws InvalidClassException, InstantiationException, IllegalAccessException, InterruptedException {
+    public static void SingleTest(Class scenario, int concurrencyLevel, long duration) throws InvalidClassException, InstantiationException, IllegalAccessException, InterruptedException {
 
         Manager m = new Manager(scenario);
 
@@ -92,7 +179,8 @@ public class Load {
 
     public static void main(String[] args) throws Exception {
 
-        singleTest(ListingScenario.class, 2, 10 * 1000);
+//        SingleTest(ListingScenario.class, 3, 10 * 1000);
+//        WebDisplay();
 
     }
 }
