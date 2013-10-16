@@ -8,6 +8,7 @@ public class Job implements Runnable {
 
     private final Scenario scenario;
     private boolean active = true;
+    private long liveTPS = 0;
 
 
     public Job(Scenario scenario) {
@@ -16,6 +17,10 @@ public class Job implements Runnable {
 
     public void stop() {
         active = false;
+    }
+
+    public long getLiveTPS() {
+        return liveTPS;
     }
 
     @Override
@@ -30,7 +35,7 @@ public class Job implements Runnable {
 
         while (active) {
             try {
-                scenario.execute();
+                liveTPS = scenario.execute();
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
