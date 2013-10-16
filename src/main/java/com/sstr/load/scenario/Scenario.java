@@ -63,7 +63,8 @@ public abstract class Scenario {
     public static Class[] getAvailableScenarios() {
         return new Class[]{
                 ListingScenario.class,
-                LogDetailScenario.class
+                LogDetailScenario.class,
+                LoginInfoScenario.class
         };
     }
 

@@ -94,8 +94,8 @@ public class Load {
                             Manager scenarioManager = managers.get(scenarioName);
                             jobs = scenarioManager.increaseJob();
                         } catch (Exception e) {
-                            halt(500);
                             e.printStackTrace();
+                            halt(500);
                         }
 
                         return jobs;
@@ -132,11 +132,33 @@ public class Load {
                     @Override
                     public Object handle(Request request, Response response) {
 
-                        double tps = 0;
+                        int tps = 0;
                         try {
                             String scenarioName = request.params(":scenario");
                             Manager scenarioManager = managers.get(scenarioName);
-                            return scenarioManager.getAggregateTPS();
+                            tps = (int) scenarioManager.getAggregateTPS();
+                        } catch (Exception e) {
+                            halt(500);
+                            e.printStackTrace();
+                        }
+
+                        return tps;
+                    }
+                });
+
+        Spark.get(
+                /**
+                 * Get Concurrency Level
+                 */
+                new Route("concurrency/:scenario") {
+
+                    @Override
+                    public Object handle(Request request, Response response) {
+                        int tps = 0;
+                        try {
+                            String scenarioName = request.params(":scenario");
+                            Manager scenarioManager = managers.get(scenarioName);
+                            tps = scenarioManager.getConcurrencyLevel();
                         } catch (Exception e) {
                             halt(500);
                             e.printStackTrace();
@@ -179,8 +201,10 @@ public class Load {
 
     public static void main(String[] args) throws Exception {
 
-//        SingleTest(ListingScenario.class, 3, 10 * 1000);
-//        WebDisplay();
+//        SingleTest(com.sstr.load.scenario.LogDetailScenario.class, 3, 30 * 1000);
+
+
+        WebDisplay();
 
     }
 }
