@@ -3,6 +3,7 @@ package com.sstr.load.manager;
 import com.sstr.load.scenario.Scenario;
 
 import java.io.InvalidClassException;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Manager {
@@ -15,6 +16,23 @@ public class Manager {
             throw new InvalidClassException(scenarioType.getCanonicalName() + " is not a valid class");
         }
         this.scenarioType = scenarioType;
+    }
+
+    public double getAggregateTPS() {
+
+        double count = 0;
+        double total = 0;
+        Iterator<Job> jobIterator = jobs.iterator();
+        while (jobIterator.hasNext()) {
+            Job j = jobIterator.next();
+            double jobTPS = j.getLiveTPS();
+            if (jobTPS != 0) {
+                total = total + jobTPS;
+                count++;
+            }
+        }
+
+        return (count > 0 ? total / count : 0);
     }
 
     public int increaseJob() throws IllegalAccessException, InstantiationException {
