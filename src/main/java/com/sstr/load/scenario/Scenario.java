@@ -31,7 +31,7 @@ public abstract class Scenario {
 
         sessionID = Jsoup
                 .connect("http://192.168.200.195:8181/iDV/svltlogin")
-                .userAgent("SSTR Load Runner/1.0 (JSoup 1.7.2)")
+                .userAgent("SSTR Load Job/1.0 (JSoup 1.7.2)")
                 .data("form_name", "loginform",
                         "txtUserID", username,
                         "txtUserPass", password,
