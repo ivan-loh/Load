@@ -1,1 +1,198 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>UP Load Runner</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/jumbotron-narrow.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container">
+    <div class="header">
+        <h3 class="text-muted">UP Load Runner</h3>
+    </div>
+
+    <div class="row marketing">
+        <div id="chartContainer"></div>
+    </div>
+    <div class="row marketing text-center">
+        <p>Concurrency Level:&nbsp<span id="concurrencyLevel">0</span></p>
+        <select id="scenarioPicker" class="form-control">
+        </select>
+    </div>
+    <div class="row marketing text-center">
+        <span><button id="increaseConcurrency" type="button" class="btn btn-success">Increase</button></span>
+        <span><button id="decreaseConcurrency" type="button" class="btn btn-warning">Decrease</button></span>
+    </div>
+
+
+    <div class="footer">
+        <p>&copy; Silverlake Symmetry and Technology Research 2013</p>
+    </div>
+
+</div>
+<!-- /container -->
+
+
+<script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/highcharts.js"></script>
+<script type="text/javascript">
+
+    var currentScenario = 'com.sstr.load.scenario.LogDetailScenario';
+
+    function start(scenario) {
+        var url = 'start/' + scenario;
+        $.ajax({
+            url: url,
+            success: function (data) {
+                console.log(scenario + ' ' + data);
+            },
+            error: function () {
+                alert("Unable to Connect to Server");
+            },
+            cache: false
+        });
+    }
+
+    function checkConcurrency(scenario) {
+        var url = 'concurrency/' + scenario;
+        $.ajax({
+            url: url,
+            success: function (data) {
+                $('#concurrencyLevel').text(data)
+            },
+            error: function () {
+                alert("Unable to Connect to Server");
+            },
+            cache: false
+        });
+    }
+
+    var chart;
+
+    function requestData() {
+
+        var url = 'tps/' + currentScenario;
+        $.ajax({
+            url: url,
+            success: function (point) {
+
+                var series = chart.series[0],
+                shift = series.data.length > 20; // shift if the series is longer than 20
+
+                // add the point
+                chart.series[0]
+                    .addPoint([Date.now(), eval(point)], true, shift);
+
+            },
+            error : function() {
+                console.log('Fetch Error');
+            },
+            complete : function () {
+                checkConcurrency(currentScenario);
+                setTimeout(requestData, 2000);
+            },
+            cache: false
+        });
+    }
+
+    $(document).ready(function () {
+
+        // Load Scenario
+        var $scenarioPicker = $('#scenarioPicker');
+
+        $.ajax({
+            url: 'scenarios',
+            success: function (data) {
+                var scenarios = JSON.parse(data);
+                $.each(scenarios, function(key, value) {
+                    $scenarioPicker
+                        .append($("<option></option>")
+                        .attr("value",value.class)
+                        .text(value.name));
+                });
+                $scenarioPicker.val(currentScenario);
+            },
+            error: function () {
+                alert("Unable to Connect to Server");
+            },
+            cache: false
+        });
+
+        // Scenario Change
+        $scenarioPicker.change(function(e) {
+            var newScenario = $scenarioPicker.val();
+            start(newScenario);
+            currentScenario = newScenario;
+        });
+
+
+        // Start a Scenario
+        start(currentScenario);
+
+        chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'chartContainer',
+                defaultSeriesType: 'spline',
+                events: { load: requestData }
+            },
+            title: {
+                text: 'Live TPS'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150,
+                maxZoom: 50 * 1000
+            },
+            yAxis: {
+                minPadding: 0.1,
+                maxPadding: 0.1,
+                title: {
+                    text: '',
+                    margin: 80
+                }
+            },
+            series: [{ name: 'TPS', data: [] }]
+        });
+
+        $('#increaseConcurrency').click(function(e) {
+            e.preventDefault();
+            var url = 'increase/' + currentScenario;
+            $.ajax({
+                url: url,
+                success: function (data) {
+                $('#concurrencyLevel').text(data)
+                },
+                error: function () {
+                    alert("Unable to Connect to Server");
+                },
+                cache: false
+            });
+        });
+
+        $('#decreaseConcurrency').click(function(e) {
+            e.preventDefault();
+            var url = 'decrease/' + currentScenario;
+            $.ajax({
+                url: url,
+                success: function (data) {
+                    $('#concurrencyLevel').text(data)
+                },
+                error: function () {
+                    alert("Unable to Connect to Server");
+                },
+                cache: false
+            });
+        });
+    });
+</script>
+</body>
+</html>
