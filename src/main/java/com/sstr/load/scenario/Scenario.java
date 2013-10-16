@@ -82,7 +82,7 @@ public abstract class Scenario {
                 index = 0;
             }
 
-            hold[index++] = 1 / duration * 1000;
+            hold[index++] = 1000 / duration;
 
             return this;
         }
