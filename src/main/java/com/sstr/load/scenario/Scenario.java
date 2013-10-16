@@ -13,6 +13,7 @@ public abstract class Scenario {
     private final String username;
     private final String password;
     private String sessionID;
+    private long liveTPS;
 
     public Scenario() {
         this("CHUALK", "123");
@@ -46,10 +47,24 @@ public abstract class Scenario {
 
     protected abstract void action() throws IOException;
 
+    /**
+     * Perform Execution of Scenario.
+     *
+     * @return Live TPS calculated from single transaction
+     * @throws IOException
+     */
     public long execute() throws IOException {
+
         long before = System.currentTimeMillis();
         action();
-        return System.currentTimeMillis() - before;
+        long duration = System.currentTimeMillis() - before;
+
+        if (liveTPS == 0) {
+            liveTPS = 1 / duration * 1000;
+        }
+
+        return (liveTPS + duration) / 2;
+
     }
 
     public static Class[] getAvailableScenarios() {
