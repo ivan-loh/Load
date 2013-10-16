@@ -52,7 +52,7 @@ public abstract class Scenario {
         return System.currentTimeMillis() - before;
     }
 
-    private static Class[] getAvailableScenarios() {
+    public static Class[] getAvailableScenarios() {
         return new Class[]{
                 ListingScenario.class,
                 LogDetailScenario.class
