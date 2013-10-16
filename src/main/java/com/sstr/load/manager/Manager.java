@@ -8,14 +8,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Manager {
 
-    private ConcurrentLinkedQueue<Job> jobs = new ConcurrentLinkedQueue<Job>();
     private final Class scenarioType;
+    private ConcurrentLinkedQueue<Job> jobs = new ConcurrentLinkedQueue<Job>();
 
     public Manager(final Class scenarioType) throws InvalidClassException {
         if (!Scenario.class.isAssignableFrom(scenarioType)) {
             throw new InvalidClassException(scenarioType.getCanonicalName() + " is not a valid class");
         }
         this.scenarioType = scenarioType;
+    }
+
+    public int getConcurrencyLevel() {
+        return jobs.size();
     }
 
     public double getAggregateTPS() {
@@ -29,6 +33,10 @@ public class Manager {
             if (jobTPS != 0) {
                 total = total + jobTPS;
                 count++;
+            } else {
+                if (!j.isActive()) {
+                    jobs.remove(j);
+                }
             }
         }
 

@@ -19,6 +19,10 @@ public class Job implements Runnable {
         active = false;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
     public double getLiveTPS() {
         return liveTPS;
     }
@@ -37,6 +41,8 @@ public class Job implements Runnable {
             try {
                 liveTPS = scenario.execute();
             } catch (IOException e) {
+                liveTPS = 0;
+                active = false;
                 e.printStackTrace();
                 return;
             }
