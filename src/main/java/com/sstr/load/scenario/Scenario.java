@@ -52,6 +52,13 @@ public abstract class Scenario {
         return System.currentTimeMillis() - before;
     }
 
+    private static Class[] getAvailableScenarios() {
+        return new Class[]{
+                ListingScenario.class,
+                LogDetailScenario.class
+        };
+    }
+
     public static void main(String[] args) throws IOException {
 
         // Login Process
