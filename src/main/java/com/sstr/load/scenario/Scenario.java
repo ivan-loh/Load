@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public abstract class Scenario {
 
-    private final AveragingTPS durations = new AveragingTPS(150);
+    private final AveragingTPS durations = new AveragingTPS(300);
     private final String username;
     private final String password;
     private String sessionID;
