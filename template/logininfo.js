@@ -6,17 +6,13 @@
                    "txtUserID",    "chualk",
                    "txtUserPass",  "123",
                    "userTimeZone", "8" ],
-        "cookie" : { 
-            "session" : "JSESSIONID"
-        },
+        "cookie" : [ "JSESSIONID" ],
         "method" : "POST"
     },
     action : {
         "connect" : "http://192.168.200.195:8181/iDV/svltaction",
         "data" : [ "tc",  "GetLoginInfo" ],
-        "cookie" : { 
-            "session" : "JSESSIONID"
-        },
+        "cookie" : [ "JSESSIONID" ],
         "method" : "POST"
     }
 }

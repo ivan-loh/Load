@@ -6,9 +6,7 @@
                    "txtUserID",    "chualk",
                    "txtUserPass",  "123",
                    "userTimeZone", "8" ],
-        "cookie" : { 
-            "session" : "JSESSIONID"
-        },
+        "cookie" : [ "JSESSIONID" ],
         "method" : "POST"
     },
     action : {
@@ -19,9 +17,7 @@
                    "LOG_APP",   "IDV",
                    "status",   "WIP",
                    "piid",    "" ],
-        "cookie" : { 
-            "session" : "JSESSIONID"
-        },
+        "cookie" : [ "JSESSIONID" ],
         "method" : "GET"
     }
 }
