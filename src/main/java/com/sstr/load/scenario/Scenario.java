@@ -21,6 +21,14 @@ public abstract class Scenario {
         this.password = password;
     }
 
+    public static Class[] getAvailableScenarios() {
+        return new Class[]{
+                ListingScenario.class,
+                LogDetailScenario.class,
+                LoginInfoScenario.class
+        };
+    }
+
     public final void pre() throws IOException {
 
         if (sessionID != null) {
@@ -58,14 +66,6 @@ public abstract class Scenario {
                 .add(System.currentTimeMillis() - before)
                 .getTPS();
 
-    }
-
-    public static Class[] getAvailableScenarios() {
-        return new Class[]{
-                ListingScenario.class,
-                LogDetailScenario.class,
-                LoginInfoScenario.class
-        };
     }
 
     private class AveragingTPS {

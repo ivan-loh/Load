@@ -26,17 +26,20 @@ public class Manager {
 
         double count = 0;
         double total = 0;
-        Iterator<Job> jobIterator = jobs.iterator();
-        while (jobIterator.hasNext()) {
-            Job j = jobIterator.next();
+
+        Iterator<Job> jobIter = jobs.iterator();
+        while (jobIter.hasNext()) {
+            Job j = jobIter.next();
             double jobTPS = j.getLiveTPS();
+
+            if (!j.isActive()) {
+                jobs.remove(j);
+                continue;
+            }
+
             if (jobTPS != 0) {
                 total = total + jobTPS;
                 count++;
-            } else {
-                if (!j.isActive()) {
-                    jobs.remove(j);
-                }
             }
         }
 

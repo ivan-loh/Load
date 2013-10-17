@@ -43,7 +43,6 @@ public class Job implements Runnable {
             } catch (IOException e) {
                 liveTPS = 0;
                 active = false;
-                e.printStackTrace();
                 return;
             }
         }
