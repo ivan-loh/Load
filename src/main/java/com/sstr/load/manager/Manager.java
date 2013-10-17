@@ -1,6 +1,6 @@
 package com.sstr.load.manager;
 
-import com.sstr.load.scenario.ScenarioV2;
+import com.sstr.load.scenario.Scenario;
 import com.sstr.load.scenario.Scene;
 
 import java.util.Iterator;
@@ -48,7 +48,7 @@ public class Manager {
 
     public int increaseJob() throws IllegalAccessException, InstantiationException {
 
-        ScenarioV2 plan = new ScenarioV2(scene);
+        Scenario plan = new Scenario(scene);
         Job newJob = new Job(plan);
 
         Thread execution = new Thread(newJob);

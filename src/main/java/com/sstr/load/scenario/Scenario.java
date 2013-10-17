@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ScenarioV2 {
+public class Scenario {
 
     private final AveragingTPS durations = new AveragingTPS(200);
     private final Map<String, String> cookie = new HashMap<String, String>(2);
     private final Scene scene;
 
-    public ScenarioV2(Scene scene) {
+    public Scenario(Scene scene) {
         this.scene = scene;
     }
 
