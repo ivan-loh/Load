@@ -53,13 +53,6 @@ public class Scene {
         return scenes;
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
-
-        for (Scene s : load()) {
-            System.out.println(s);
-        }
-    }
-
     public static String deepToJSONString(String[] strings) {
 
         StringBuilder result = new StringBuilder("[ ");
@@ -72,6 +65,10 @@ public class Scene {
         result.append(" ]");
 
         return result.toString();
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String toString() {

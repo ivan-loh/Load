@@ -1,15 +1,17 @@
 package com.sstr.load;
 
 import com.sstr.load.manager.Manager;
-import com.sstr.load.scenario.Scenario;
+import com.sstr.load.scenario.Scene;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 import spark.Spark;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InvalidClassException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Load {
@@ -20,6 +22,12 @@ public class Load {
          * Create Essential Items
          */
         final ConcurrentHashMap<String, Manager> managers = new ConcurrentHashMap<String, Manager>(4, 0.75f, 4);
+
+        final List<Scene> scenes = Scene.load();
+        final ConcurrentHashMap<String, Scene> sceneMap = new ConcurrentHashMap<String, Scene>(scenes.size(), 0.75f, 4);
+        for (Scene s : scenes) {
+            sceneMap.put(s.getName(), s);
+        }
 
         /**
          * Spark
@@ -35,18 +43,13 @@ public class Load {
                     @Override
                     public Object handle(Request request, Response response) {
 
-                        Class[] availableScenarios = Scenario.getAvailableScenarios();
-                        if (availableScenarios.length == 0) {
-                            return "";
-                        }
-
                         StringBuilder scenarios = new StringBuilder("[");
                         String seperator = "";
-                        for (Class c : availableScenarios) {
+                        for (Scene s : scenes) {
                             scenarios.append(seperator)
                                     .append("{")
-                                    .append("\"name\" : ").append("\"").append(c.getSimpleName()).append("\",")
-                                    .append("\"class\" : ").append("\"").append(c.getCanonicalName()).append("\"")
+                                    .append("\"name\" : ").append("\"").append(s.getName()).append("\",")
+                                    .append("\"scene\" : ").append("\"").append(s.getName()).append("\"")
                                     .append("}");
                             seperator = ",";
                         }
@@ -61,19 +64,22 @@ public class Load {
                 /**
                  * Starts Manager
                  */
-                new Route("start/:scenario") {
+                new Route("start/:scene") {
                     @Override
                     public Object handle(Request request, Response response) {
-
-
                         try {
-                            String scenarioName = request.params(":scenario");
-                            Class<?> scenario = Class.forName(scenarioName);
-                            Manager scenarioManager = new Manager(scenario);
-                            managers.putIfAbsent(scenarioName, scenarioManager);
+                            String sceneName = request.params(":scene");
+                            sceneName = sceneName.replaceAll("%20", " ");
+
+                            Manager m = managers.get(sceneName);
+                            if (m == null) {
+                                Scene s = sceneMap.get(sceneName);
+                                Manager scenarioManager = new Manager(s);
+                                managers.putIfAbsent(sceneName, scenarioManager);
+                            }
                         } catch (Exception e) {
-                            halt(500);
                             e.printStackTrace();
+                            halt(500);
                         }
 
                         return "Ok";
@@ -84,14 +90,16 @@ public class Load {
                 /**
                  * Increase manager concurrency
                  */
-                new Route("increase/:scenario") {
+                new Route("increase/:scene") {
                     @Override
                     public Object handle(Request request, Response response) {
 
                         int jobs = 0;
                         try {
-                            String scenarioName = request.params(":scenario");
-                            Manager scenarioManager = managers.get(scenarioName);
+                            String sceneName = request.params(":scene");
+                            sceneName = sceneName.replaceAll("%20", " ");
+
+                            Manager scenarioManager = managers.get(sceneName);
                             jobs = scenarioManager.increaseJob();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -106,18 +114,20 @@ public class Load {
                 /**
                  * Decrease manager concurrency
                  */
-                new Route("decrease/:scenario") {
+                new Route("decrease/:scene") {
                     @Override
                     public Object handle(Request request, Response response) {
 
                         int jobs = 0;
                         try {
-                            String scenarioName = request.params(":scenario");
-                            Manager scenarioManager = managers.get(scenarioName);
+                            String sceneName = request.params(":scene");
+                            sceneName = sceneName.replaceAll("%20", " ");
+
+                            Manager scenarioManager = managers.get(sceneName);
                             jobs = scenarioManager.decreaseJob();
                         } catch (Exception e) {
-                            halt(500);
                             e.printStackTrace();
+                            halt(500);
                         }
 
                         return jobs;
@@ -128,18 +138,20 @@ public class Load {
                 /**
                  * Get manager TPS
                  */
-                new Route("tps/:scenario") {
+                new Route("tps/:scene") {
                     @Override
                     public Object handle(Request request, Response response) {
 
                         int tps = 0;
                         try {
-                            String scenarioName = request.params(":scenario");
-                            Manager scenarioManager = managers.get(scenarioName);
+                            String sceneName = request.params(":scene");
+                            sceneName = sceneName.replaceAll("%20", " ");
+
+                            Manager scenarioManager = managers.get(sceneName);
                             tps = (int) scenarioManager.getAggregateTPS();
                         } catch (Exception e) {
-                            halt(500);
                             e.printStackTrace();
+                            halt(500);
                         }
 
                         return tps;
@@ -150,18 +162,20 @@ public class Load {
                 /**
                  * Get Concurrency Level
                  */
-                new Route("concurrency/:scenario") {
+                new Route("concurrency/:scene") {
 
                     @Override
                     public Object handle(Request request, Response response) {
                         int tps = 0;
                         try {
-                            String scenarioName = request.params(":scenario");
-                            Manager scenarioManager = managers.get(scenarioName);
+                            String sceneName = request.params(":scene");
+                            sceneName = sceneName.replaceAll("%20", " ");
+
+                            Manager scenarioManager = managers.get(sceneName);
                             tps = scenarioManager.getConcurrencyLevel();
                         } catch (Exception e) {
-                            halt(500);
                             e.printStackTrace();
+                            halt(500);
                         }
 
                         return tps;
@@ -171,9 +185,17 @@ public class Load {
 
     }
 
-    public static void SingleTest(Class scenario, int concurrencyLevel, long duration) throws InvalidClassException, InstantiationException, IllegalAccessException, InterruptedException {
+    public static void SingleTest(String sceneName, int concurrencyLevel, long duration) throws InvalidClassException, InstantiationException, IllegalAccessException, InterruptedException, FileNotFoundException {
 
-        Manager m = new Manager(scenario);
+        final List<Scene> scenes = Scene.load();
+        Scene activeScene = null;
+        for (Scene s : scenes) {
+            if (s.getName().toLowerCase().equals(sceneName.toLowerCase())) {
+                activeScene = s;
+            }
+        }
+
+        Manager m = new Manager(activeScene);
 
         for (int i = 0; i < concurrencyLevel; i++) {
             m.increaseJob();
@@ -201,7 +223,7 @@ public class Load {
 
     public static void main(String[] args) throws Exception {
 
-//        SingleTest(com.sstr.load.scenario.LogDetailScenario.class, 3, 30 * 1000);
+//        SingleTest("Listing", 3, 30 * 1000);
 
 
         WebDisplay();

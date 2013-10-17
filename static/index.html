@@ -16,6 +16,9 @@
 
 <div class="container">
     <div class="header">
+        <ul class="nav nav-pills pull-right">
+            <li><a id="collaborate" href="#">Collaborate</a></li>
+        </ul>
         <h3 class="text-muted">UP Load Runner</h3>
     </div>
 
@@ -28,7 +31,7 @@
     </div>
 
     <div class="row marketing text-center">
-        <p>Concurrenct Users:&nbsp<span id="concurrencyLevel">0</span></p>
+        <p>Concurrent Users:&nbsp<span id="concurrencyLevel">0</span></p>
     </div>
 
     <div class="row marketing text-center">
@@ -49,9 +52,12 @@
 <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/highcharts.js"></script>
+<script src="https://togetherjs.com/togetherjs.js"></script>
 <script type="text/javascript">
+    document.getElementById("collaborate")
+    .addEventListener("click", TogetherJS, false);
 
-    var currentScenario = 'com.sstr.load.scenario.LogDetailScenario';
+    var currentScenario = 'Listing';
 
     function start(scenario) {
         var url = 'start/' + scenario;
@@ -82,7 +88,6 @@
     }
 
     var chart;
-
     function requestData() {
 
         var url = 'tps/' + currentScenario;
@@ -94,16 +99,16 @@
                 shift = series.data.length > 20; // shift if the series is longer than 20
 
                 // add the point
-                chart.series[0]
-                    .addPoint([Date.now(), eval(point)], true, shift);
+                chart.series[0].addPoint([Date.now(), eval(point)], true, shift);
 
+                // Update Concurrency & Go Forward for the Next Fetch
+                checkConcurrency(currentScenario);
+                setTimeout(requestData, 1500);
             },
             error : function() {
                 console.log('Fetch Error');
             },
             complete : function () {
-                checkConcurrency(currentScenario);
-                setTimeout(requestData, 2000);
             },
             cache: false
         });
@@ -111,9 +116,8 @@
 
     $(document).ready(function () {
 
-        // Load Scenario
+        // Load Scenarios
         var $scenarioPicker = $('#scenarioPicker');
-
         $.ajax({
             url: 'scenarios',
             success: function (data) {
@@ -121,7 +125,7 @@
                 $.each(scenarios, function(key, value) {
                     $scenarioPicker
                         .append($("<option></option>")
-                        .attr("value",value.class)
+                        .attr("value",value.scene)
                         .text(value.name));
                 });
                 $scenarioPicker.val(currentScenario);
@@ -139,10 +143,17 @@
             currentScenario = newScenario;
         });
 
-
         // Start a Scenario
         start(currentScenario);
 
+        // Chart Options
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
+        // Creating the Chart
         chart = new Highcharts.Chart({
             chart: {
                 renderTo: 'chartContainer',
@@ -154,15 +165,15 @@
             },
             xAxis: {
                 type: 'datetime',
-                tickPixelInterval: 150,
+                tickPixelInterval: 200,
                 maxZoom: 50 * 1000
             },
             yAxis: {
-                minPadding: 0.1,
-                maxPadding: 0.1,
+                minPadding: 0.5,
+                maxPadding: 0.5,
                 title: {
                     text: '',
-                    margin: 80
+                    margin: 10
                 }
             },
             series: [{ name: 'TPS', data: [] }]

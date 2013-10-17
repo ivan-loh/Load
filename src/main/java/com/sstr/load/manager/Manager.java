@@ -1,21 +1,21 @@
 package com.sstr.load.manager;
 
-import com.sstr.load.scenario.Scenario;
+import com.sstr.load.scenario.ScenarioV2;
+import com.sstr.load.scenario.Scene;
 
-import java.io.InvalidClassException;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Manager {
 
-    private final Class scenarioType;
+    private final Scene scene;
     private ConcurrentLinkedQueue<Job> jobs = new ConcurrentLinkedQueue<Job>();
 
-    public Manager(final Class scenarioType) throws InvalidClassException {
-        if (!Scenario.class.isAssignableFrom(scenarioType)) {
-            throw new InvalidClassException(scenarioType.getCanonicalName() + " is not a valid class");
+    public Manager(final Scene scene) {
+        if (scene == null) {
+            throw new RuntimeException(" Scene cannot be null");
         }
-        this.scenarioType = scenarioType;
+        this.scene = scene;
     }
 
     public int getConcurrencyLevel() {
@@ -48,11 +48,11 @@ public class Manager {
 
     public int increaseJob() throws IllegalAccessException, InstantiationException {
 
-        Scenario plan = (Scenario) scenarioType.newInstance();
+        ScenarioV2 plan = new ScenarioV2(scene);
         Job newJob = new Job(plan);
 
         Thread execution = new Thread(newJob);
-        execution.setName(scenarioType.getCanonicalName() + " Job");
+        execution.setName(scene.getName() + " Job");
         execution.start();
 
         jobs.add(newJob);

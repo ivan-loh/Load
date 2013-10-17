@@ -1,17 +1,17 @@
 package com.sstr.load.manager;
 
-import com.sstr.load.scenario.Scenario;
+import com.sstr.load.scenario.ScenarioV2;
 
 import java.io.IOException;
 
 public class Job implements Runnable {
 
-    private final Scenario scenario;
+    private final ScenarioV2 scenario;
     private boolean active = true;
     private double liveTPS = 0;
 
 
-    public Job(Scenario scenario) {
+    public Job(ScenarioV2 scenario) {
         this.scenario = scenario;
     }
 
