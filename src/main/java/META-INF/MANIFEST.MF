@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Class-Path: spark-core-1.1.jar javax.servlet-3.0.0.v201112011016.jar j
+ etty-util-9.0.2.v20130417.jar jetty-io-9.0.2.v20130417.jar jetty-serv
+ let-9.0.2.v20130417.jar jetty-http-9.0.2.v20130417.jar jsoup-1.7.2.ja
+ r jetty-server-9.0.2.v20130417.jar slf4j-api-1.7.2.jar jetty-xml-9.0.
+ 2.v20130417.jar gson-2.2.4.jar jetty-security-9.0.2.v20130417.jar jet
+ ty-webapp-9.0.2.v20130417.jar
+Main-Class: com.sstr.load.Load
+
