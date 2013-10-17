@@ -33,7 +33,7 @@ public class Job implements Runnable {
         try {
             scenario.pre();
         } catch (IOException e) {
-            e.printStackTrace();
+            active = false;
             return;
         }
 
