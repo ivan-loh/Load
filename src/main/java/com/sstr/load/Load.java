@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Load {
 
-    public static void WebDisplay() throws IOException {
+    public static void webDisplay(int port) throws IOException {
 
         /**
          * Create Essential Items
@@ -32,7 +32,7 @@ public class Load {
         /**
          * Spark
          */
-        Spark.setPort(4444);
+        Spark.setPort(port);
         Spark.externalStaticFileLocation(new File("static").getCanonicalPath());
 
         Spark.get(
@@ -185,7 +185,7 @@ public class Load {
 
     }
 
-    public static void SingleTest(String sceneName, int concurrencyLevel, long duration) throws InvalidClassException, InstantiationException, IllegalAccessException, InterruptedException, FileNotFoundException {
+    public static void singleTest(String sceneName, int concurrencyLevel, long duration) throws InvalidClassException, InstantiationException, IllegalAccessException, InterruptedException, FileNotFoundException {
 
         final List<Scene> scenes = Scene.load();
         Scene activeScene = null;
@@ -223,10 +223,18 @@ public class Load {
 
     public static void main(String[] args) throws Exception {
 
-//        SingleTest("Listing", 3, 30 * 1000);
+        int port = 4444;
+        if (args.length > 1) {
+            for (int i = 0; i < args.length; i++) {
+                String s = args[i].toLowerCase();
+                if (s.equals("-p") || s.equals("--port")) {
+                    port = Integer.parseInt(args[++i]);
+                }
+            }
+        }
 
-
-        WebDisplay();
+        webDisplay(port);
 
     }
+
 }
