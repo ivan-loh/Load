@@ -62,6 +62,19 @@ public class Scene {
         return result.toString();
     }
 
+    public static String deepToJSONString(Action[] actions) {
+        StringBuilder result = new StringBuilder("[ ");
+        String seperator = "";
+        for (Action s : actions) {
+            result.append(seperator)
+                    .append("\"").append(s).append("\"");
+            seperator = ",";
+        }
+        result.append(" ]");
+
+        return result.toString();
+    }
+
     public String getName() {
         return name;
     }
@@ -70,7 +83,7 @@ public class Scene {
         return new StringBuilder("{")
                 .append("\"name\" : \"").append(name).append("\", ")
                 .append("\"pre\" : ").append(pre.toString()).append(", ")
-                .append("\"action\" : ").append(actions.toString()).append(" ")
+                .append("\"actions\" : ").append(deepToJSONString(actions)).append(" ")
                 .append(" }").toString();
     }
 
