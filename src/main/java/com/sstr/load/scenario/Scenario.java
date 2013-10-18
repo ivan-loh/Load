@@ -19,6 +19,10 @@ public class Scenario {
 
     public final void pre() throws IOException {
 
+        if (scene.pre == null) {
+            return;
+        }
+
         Scene.Action pre = scene.pre;
         Connection.Method method =
                 pre.method.toLowerCase().equals("post") ?
