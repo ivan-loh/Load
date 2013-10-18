@@ -148,6 +148,9 @@ public class Load {
                             sceneName = sceneName.replaceAll("%20", " ");
 
                             Manager scenarioManager = managers.get(sceneName);
+                            if (scenarioManager == null) {
+                                return 0;
+                            }
                             tps = (int) scenarioManager.getAggregateTPS();
                         } catch (Exception e) {
                             e.printStackTrace();

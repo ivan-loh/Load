@@ -47,28 +47,32 @@ public class Scenario {
     protected void action() throws IOException {
 
         // 1 . Default Variables
-        Scene.Action action = scene.action;
-        Connection.Method method =
-                action.method.toLowerCase().equals("post") ?
-                        Connection.Method.POST
-                        : Connection.Method.GET;
+        Scene.Action[] actions = scene.actions;
 
-        // 2. Connection Object
-        Connection connect = Jsoup.connect(action.connect);
+        for (Scene.Action action : actions) {
 
-        // 3. Set Cookies
-        for (String s : action.cookie) {
-            String value = cookie.get(s);
-            if (value != null) {
-                connect.cookie(s, value);
+            Connection.Method method =
+                    action.method.toLowerCase().equals("post") ?
+                            Connection.Method.POST
+                            : Connection.Method.GET;
+
+            // 2. Connection Object
+            Connection connect = Jsoup.connect(action.connect);
+
+            // 3. Set Cookies
+            for (String s : action.cookie) {
+                String value = cookie.get(s);
+                if (value != null) {
+                    connect.cookie(s, value);
+                }
             }
-        }
 
-        // 4. Connect
-        connect
-                .data(action.data)
-                .method(method)
-                .execute();
+            // 4. Connect
+            connect
+                    .data(action.data)
+                    .method(method)
+                    .execute();
+        }
 
     }
 

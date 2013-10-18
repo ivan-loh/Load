@@ -9,10 +9,10 @@
         "cookie" : [ "JSESSIONID" ],
         "method" : "POST"
     },
-    action : {
+    actions : [ {
         "connect" : "http://192.168.200.195:8181/iDV/svltaction",
         "data" : [ "tc",  "GetLoginInfo" ],
         "cookie" : [ "JSESSIONID" ],
         "method" : "POST"
-    }
+    } ]
 }

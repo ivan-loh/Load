@@ -11,12 +11,7 @@ public class Scene {
     public static final String TEMPLATE_FOLDER = "template";
     String name;
     Action pre;
-    Action action;
-
-    public static Scene load(File f) throws FileNotFoundException {
-        BufferedReader br = new BufferedReader(new FileReader(f));
-        return new Gson().fromJson(br, Scene.class);
-    }
+    Action[] actions;
 
     /**
      * Loads all JS Template Files from the template folder
@@ -75,7 +70,7 @@ public class Scene {
         return new StringBuilder("{")
                 .append("\"name\" : \"").append(name).append("\", ")
                 .append("\"pre\" : ").append(pre.toString()).append(", ")
-                .append("\"action\" : ").append(action.toString()).append(" ")
+                .append("\"action\" : ").append(actions.toString()).append(" ")
                 .append(" }").toString();
     }
 

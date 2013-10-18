@@ -9,7 +9,7 @@
         "cookie" : [ "JSESSIONID" ],
         "method" : "POST"
     },
-    action : {
+    actions : [ {
         "connect" : "http://192.168.200.195:8181/iDV/svltview",
         "data" : [ "PageId",  "iDevMainEdit",
                    "AppID",   "iDV",
@@ -19,5 +19,5 @@
                    "piid",    "" ],
         "cookie" : [ "JSESSIONID" ],
         "method" : "GET"
-    }
+    } ]
 }

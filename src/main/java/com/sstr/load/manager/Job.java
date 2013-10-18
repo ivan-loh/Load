@@ -33,6 +33,7 @@ public class Job implements Runnable {
         try {
             scenario.pre();
         } catch (IOException e) {
+            e.printStackTrace();
             active = false;
             return;
         }
@@ -41,6 +42,7 @@ public class Job implements Runnable {
             try {
                 liveTPS = scenario.execute();
             } catch (IOException e) {
+                e.printStackTrace();
                 liveTPS = 0;
                 active = false;
                 return;
